@@ -35,7 +35,7 @@ const showNow = computed(() => state.showNow)
 
     <main class="main">
       <DiscoverView v-if="currentView === 'discover'" @navigate="navigate" />
-      <SearchView v-else-if="currentView === 'search'" @navigate="navigate" />
+      <SearchView v-else-if="currentView === 'search'" :q="viewParams.q || ''" @navigate="navigate" />
       <PlaylistView
         v-else-if="currentView === 'playlist'"
         :playlist="viewParams.playlist || null"

@@ -4,25 +4,25 @@ import api from '../api/netease.js'
 import { demoTracks, demoPlaylists } from '../data/demo.js'
 import SongItem from '../components/SongItem.vue'
 import { usePlayer } from '../store/player.js'
+import { searchCache } from '../store/viewCache.js'
 
+const props = defineProps({
+  q: { type: String, default: '' }
+})
 const emit = defineEmits(['navigate'])
 const { playTrack } = usePlayer()
 
-const keyword = ref('')
+// 关键词与热搜先读缓存，进入页面不闪空
+const keyword = ref(searchCache.keyword)
 const tab = ref('songs')
-const songs = ref([])
-const playlists = ref([])
 const loading = ref(false)
-const searched = ref(false)
-const demo = ref(false)
-const hots = ref([])
+const hots = ref(searchCache.hots)
 
-// 一次搜索同时拉「单曲 + 歌单」并各自缓存，切换 tab 不再清空
+// 一次搜索同时拉「单曲 + 歌单」并写回缓存，切换 tab 不再清空
 async function runSearch(kw) {
   const k = kw.trim()
   if (!k) return
   loading.value = true
-  searched.value = true
   const [sRes, pRes] = await Promise.all([
     api
       .searchSongs(k, { limit: 40 })
@@ -36,9 +36,12 @@ async function runSearch(kw) {
       .then((list) => ({ list, isDemo: false }))
       .catch(() => ({ list: demoPlaylists.filter((p) => p.name.includes(k)), isDemo: true }))
   ])
-  songs.value = sRes.list
-  playlists.value = pRes.list
-  demo.value = sRes.isDemo && pRes.isDemo
+  // 写回缓存：新数据返回后才更新，进入页面先展示旧结果
+  searchCache.songs = sRes.list
+  searchCache.playlists = pRes.list
+  searchCache.demo = sRes.isDemo && pRes.isDemo
+  searchCache.searched = true
+  searchCache.keyword = k
   loading.value = false
 }
 
@@ -47,7 +50,7 @@ function doSearch() {
 }
 
 function playSong(t) {
-  playTrack(t, songs.value)
+  playTrack(t, searchCache.songs)
 }
 function goPlaylist(p) {
   emit('navigate', { view: 'playlist', params: { playlist: p } })
@@ -58,16 +61,30 @@ function pickHot(h) {
 }
 
 onMounted(async () => {
-  // 热搜词（用于快捷搜索，也作为默认搜索词）
+  // 由 banner 等外部带入的查询词：直接搜索并缓存
+  if (props.q) {
+    keyword.value = props.q
+    await runSearch(props.q)
+    searchCache.loaded = true
+    return
+  }
+  // 已有缓存：恢复展示，不重新搜索（不闪空、不覆盖）
+  if (searchCache.loaded) {
+    keyword.value = searchCache.keyword
+    hots.value = searchCache.hots
+    return
+  }
+  // 首次进入：拉热搜词 + 默认加载一点数据
   try {
     hots.value = await api.hotSearch(10)
   } catch {
     hots.value = []
   }
-  // 默认加载点数据：用第一个热搜词，拿不到就用一个固定词兜底
+  searchCache.hots = hots.value
   const def = hots.value[0] || '晴天'
   keyword.value = def
-  runSearch(def)
+  await runSearch(def)
+  searchCache.loaded = true
 })
 </script>
 
@@ -93,26 +110,26 @@ onMounted(async () => {
       <button v-for="h in hots" :key="h" class="hot-chip" @click="pickHot(h)">{{ h }}</button>
     </div>
 
-    <div v-if="demo" class="demo-tip">🌿 演示模式：未连接本地接口，仅展示示例匹配结果。</div>
+    <div v-if="searchCache.demo" class="demo-tip">🌿 演示模式：未连接本地接口，仅展示示例匹配结果。</div>
 
     <div v-if="loading" class="state">搜索中…</div>
-    <div v-else-if="searched && !songs.length && !playlists.length" class="state muted">
+    <div v-else-if="searchCache.searched && !searchCache.songs.length && !searchCache.playlists.length" class="state muted">
       没有找到「{{ keyword }}」相关结果 🍃
     </div>
 
-    <div v-if="tab === 'songs' && songs.length" class="list glass">
+    <div v-if="tab === 'songs' && searchCache.songs.length" class="list glass">
       <SongItem
-        v-for="(t, i) in songs"
+        v-for="(t, i) in searchCache.songs"
         :key="t.id"
         :track="t"
         :index="i"
-        :playlist="songs"
+        :playlist="searchCache.songs"
         @play="playSong"
       />
     </div>
 
-    <div v-if="tab === 'playlists' && playlists.length" class="grid">
-      <button v-for="(p, i) in playlists" :key="p.id" class="card stagger" :style="{ '--i': i }" @click="goPlaylist(p)">
+    <div v-if="tab === 'playlists' && searchCache.playlists.length" class="grid">
+      <button v-for="(p, i) in searchCache.playlists" :key="p.id" class="card stagger" :style="{ '--i': i }" @click="goPlaylist(p)">
         <div class="cover" :style="{ backgroundImage: `url(${p.coverImgUrl})` }">
           <span class="cnt">{{ (p.trackCount || p.tracks?.length || '') }}</span>
         </div>

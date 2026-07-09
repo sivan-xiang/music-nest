@@ -3,6 +3,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import api from '../api/netease.js'
 import SongItem from '../components/SongItem.vue'
 import { usePlayer } from '../store/player.js'
+import { playlistCache } from '../store/viewCache.js'
 
 const props = defineProps({
   playlist: { type: Object, default: null },
@@ -22,14 +23,26 @@ async function load() {
     detail.value = props.playlist
     return
   }
-  loading.value = true
   const pid = props.playlist?.id || props.id
+  // 已有缓存：先展示，不闪 loading（回来不空）
+  const cached = playlistCache.map[pid]
+  if (cached && cached.loaded) {
+    detail.value = cached.detail
+    demo.value = cached.demo
+    loading.value = false
+    return
+  }
+  loading.value = true
   try {
-    detail.value = await api.playlistDetail(pid)
-    if (!detail.value?.tracks?.length) throw new Error('empty')
+    const d = await api.playlistDetail(pid)
+    if (!d?.tracks?.length) throw new Error('empty')
+    detail.value = d
+    demo.value = false
+    playlistCache.map[pid] = { detail: d, demo: false, loaded: true }
   } catch (e) {
     demo.value = true
     detail.value = props.playlist || { name: '示例歌单', tracks: [] }
+    playlistCache.map[pid] = { detail: detail.value, demo: true, loaded: true }
   } finally {
     loading.value = false
   }

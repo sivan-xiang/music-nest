@@ -4,15 +4,13 @@ import api from '../api/netease.js'
 import { demoTracks, demoPlaylists } from '../data/demo.js'
 import SongItem from '../components/SongItem.vue'
 import { usePlayer } from '../store/player.js'
+import { discoverCache } from '../store/viewCache.js'
 
 const emit = defineEmits(['navigate'])
 const { playTrack } = usePlayer()
 
-const banners = ref([])
-const playlists = ref([])
-const newSongs = ref([])
-const loading = ref(true)
-const demo = ref(false)
+// 数据来自跨实例缓存：已有缓存则进入即展示，不闪 loading
+const loading = ref(discoverCache.loaded ? false : true)
 const bi = ref(0)
 let timer = null
 
@@ -20,7 +18,7 @@ function goPlaylist(p) {
   emit('navigate', { view: 'playlist', params: { playlist: p } })
 }
 function playNew(t) {
-  playTrack(t, newSongs.value)
+  playTrack(t, discoverCache.newSongs)
 }
 
 // Banner 按跳转类型分别处理（网易云 banner 不一定是歌单）
@@ -43,9 +41,9 @@ function bannerTag(b) {
 }
 
 function startRotate() {
-  if (banners.value.length < 2) return
+  if (discoverCache.banners.length < 2) return
   timer = setInterval(() => {
-    bi.value = (bi.value + 1) % banners.value.length
+    bi.value = (bi.value + 1) % discoverCache.banners.length
   }, 5000)
 }
 function stopRotate() {
@@ -53,21 +51,28 @@ function stopRotate() {
 }
 
 onMounted(async () => {
+  // 已有缓存则先展示，后台静默刷新（不闪 loading、不闪空）
   try {
     const [b, pl, ns] = await Promise.all([
       api.banner(),
       api.recommendPlaylists(10),
       api.newSongs(12)
     ])
-    banners.value = b
-    playlists.value = pl
-    newSongs.value = ns
+    discoverCache.banners = b
+    discoverCache.playlists = pl
+    discoverCache.newSongs = ns
+    discoverCache.demo = false
+    discoverCache.loaded = true
     if (!pl.length && !ns.length) throw new Error('empty')
   } catch (e) {
-    demo.value = true
-    banners.value = demoPlaylists.map((p) => ({ pic: p.coverImgUrl, title: p.name }))
-    playlists.value = demoPlaylists
-    newSongs.value = demoTracks
+    // 仅当从未成功加载过才回退演示，避免把已加载的真实数据冲掉
+    if (!discoverCache.loaded) {
+      discoverCache.demo = true
+      discoverCache.banners = demoPlaylists.map((p) => ({ pic: p.coverImgUrl, title: p.name }))
+      discoverCache.playlists = demoPlaylists
+      discoverCache.newSongs = demoTracks
+      discoverCache.loaded = true
+    }
   } finally {
     loading.value = false
     startRotate()
@@ -78,14 +83,14 @@ onUnmounted(stopRotate)
 
 <template>
   <div class="discover fade-up">
-    <div v-if="demo" class="demo-tip">
+    <div v-if="discoverCache.demo" class="demo-tip">
       🌿 当前为<strong>演示模式</strong>（未检测到本地音乐接口）。启动 <code>NeteaseCloudMusicApi</code> 后即可收听真实曲库。
     </div>
 
     <!-- Banner -->
     <div class="banner glass" @mouseenter="stopRotate" @mouseleave="startRotate">
       <div
-        v-for="(b, i) in banners"
+        v-for="(b, i) in discoverCache.banners"
         :key="i"
         class="slide"
         :class="{ on: i === bi }"
@@ -100,7 +105,7 @@ onUnmounted(stopRotate)
       </div>
       <div class="dots">
         <i
-          v-for="(b, i) in banners"
+          v-for="(b, i) in discoverCache.banners"
           :key="i"
           :class="{ on: i === bi }"
           @click="bi = i"
@@ -115,7 +120,7 @@ onUnmounted(stopRotate)
         <span class="muted">为你精选 · 挑一个心情</span>
       </div>
       <div class="grid">
-        <button v-for="(p, i) in playlists" :key="p.id" class="card stagger" :style="{ '--i': i }" @click="goPlaylist(p)">
+        <button v-for="(p, i) in discoverCache.playlists" :key="p.id" class="card stagger" :style="{ '--i': i }" @click="goPlaylist(p)">
           <div class="cover" :style="{ backgroundImage: `url(${p.coverImgUrl})` }">
             <span class="play-ic">▶</span>
           </div>
@@ -133,11 +138,11 @@ onUnmounted(stopRotate)
       </div>
       <div class="list glass">
         <SongItem
-          v-for="(t, i) in newSongs"
+          v-for="(t, i) in discoverCache.newSongs"
           :key="t.id"
           :track="t"
           :index="i"
-          :playlist="newSongs"
+          :playlist="discoverCache.newSongs"
           @play="playNew"
         />
       </div>
