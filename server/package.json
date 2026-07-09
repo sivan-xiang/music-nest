@@ -1,0 +1,13 @@
+{
+  "name": "music-nest-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NeteaseCloudMusicApi 后端，供 music-nest 前端调用",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "NeteaseCloudMusicApi": "^4.32.0"
+  }
+}
