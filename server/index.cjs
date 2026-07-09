@@ -63,10 +63,15 @@ async function initNcm() {
       changeOrigin: true,
       pathRewrite: { '^/api': '' },
       // 把登录态 cookie 注入到转发给 NCM 的请求头，
-      // 否则 /song/url/v1 等接口对大多数歌曲返回 url:null
+      // 否则 /song/url/v1 等接口对大多数歌曲返回 url:null。
+      // 注意：NCM 的 cookieToJson 只认 "key=value" 格式，
+      // 用户提供的 MUSIC_U 是裸值，必须补 "MUSIC_U=" 前缀才生效。
       onProxyReq(proxyReq, req) {
         if (NCM_COOKIE) {
-          proxyReq.setHeader('Cookie', NCM_COOKIE)
+          const cookieVal = /MUSIC_U=/.test(NCM_COOKIE)
+            ? NCM_COOKIE
+            : `MUSIC_U=${NCM_COOKIE}`
+          proxyReq.setHeader('Cookie', cookieVal)
         }
       }
     })
