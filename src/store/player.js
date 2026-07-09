@@ -99,6 +99,11 @@ async function ensureLyric(track) {
 
 async function loadAndPlay(track) {
   state.current = track
+  // 切歌前先暂停并重置，避免旧 play() 异步请求被新 src 中断产生 AbortError
+  audio.pause()
+  audio.currentTime = 0
+  audio.src = ''
+
   const url = await ensureUrl(track)
   if (!url) {
     // 演示兜底
@@ -117,7 +122,16 @@ async function loadAndPlay(track) {
   try {
     await audio.play()
   } catch (e) {
-    console.warn('播放失败（可能是浏览器自动播放限制或链接失效）：', e)
+    if (e.name === 'AbortError') {
+      // 被新播放请求中断，属正常竞态，无需提示
+      return
+    }
+    if (e.name === 'NotAllowedError') {
+      notify('浏览器需要用户手动触发才能播放，请点播放按钮')
+    } else {
+      console.warn('播放失败（可能是浏览器自动播放限制或链接失效）：', e)
+      notify('播放失败，请重试或切歌')
+    }
   }
 }
 
