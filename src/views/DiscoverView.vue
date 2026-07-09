@@ -161,8 +161,9 @@ onUnmounted(stopRotate)
 .slide {
   position: absolute; inset: 0; background-size: cover; background-position: center;
   opacity: 0; transform: scale(1.04); transition: opacity .8s, transform 1.2s; cursor: pointer;
+  pointer-events: none;
 }
-.slide.on { opacity: 1; transform: scale(1); }
+.slide.on { opacity: 1; transform: scale(1); pointer-events: auto; }
 .slide-mask {
   position: absolute; inset: 0;
   background: linear-gradient(90deg, rgba(20,30,40,.5), rgba(20,30,40,.05) 60%);
