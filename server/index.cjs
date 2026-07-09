@@ -10,6 +10,7 @@ const express = require('express')
 const cors = require('cors')
 const fs = require('fs')
 const path = require('path')
+const os = require('os')
 
 const NCM_PORT = Number(process.env.NCM_PORT) || 4000
 const PORT = Number(process.env.PORT) || 3000
@@ -38,12 +39,14 @@ const server = app.listen(PORT, () => {
 
 // ─── 后台异步启动网易云 API，就绪后挂载 /api 代理 ──
 async function initNcm() {
-  // NeteaseCloudMusicApi 在加载时会同步读取 /tmp/anonymous_token，
-  // 全新容器里该文件不存在会直接崩溃；先确保它存在（空文件即可走匿名模式）
+  // NeteaseCloudMusicApi 在加载时会同步读取 anonymous_token，
+  // 容器里该文件不存在会直接崩溃；先确保它存在（空文件即可走匿名模式）。
+  // 用 os.tmpdir() 兼容 Linux(/tmp) 与 Windows，避免硬编码 /tmp 在 Windows 上找不到目录。
+  const anonToken = path.join(os.tmpdir(), 'anonymous_token')
   try {
-    fs.accessSync('/tmp/anonymous_token')
+    fs.accessSync(anonToken)
   } catch {
-    fs.writeFileSync('/tmp/anonymous_token', '')
+    fs.writeFileSync(anonToken, '')
   }
 
   const { createProxyMiddleware } = require('http-proxy-middleware')
