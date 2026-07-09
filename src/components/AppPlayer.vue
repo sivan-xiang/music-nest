@@ -24,7 +24,7 @@ function onSeek(e) {
 </script>
 
 <template>
-  <footer class="player glass">
+  <footer class="player glass" :style="{ '--pct': pct + '%' }">
     <div class="left">
       <AlbumArt :src="state.current?.album?.picUrl" :playing="state.isPlaying" :size="56" />
       <div class="eq-bars" :class="{ playing: state.isPlaying }" v-if="state.current">
@@ -140,4 +140,38 @@ function onSeek(e) {
 }
 .toast-enter-active, .toast-leave-active { transition: .28s cubic-bezier(.2,.7,.3,1); }
 .toast-enter-from, .toast-leave-to { opacity: 0; transform: translate(-50%, -80%); }
+
+/* ============ 移动端：常驻迷你播放条（位于底部 Tab 栏之上） ============ */
+@media (max-width: 820px) {
+  .player {
+    left: 0; right: 0;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    height: var(--player-h);
+    padding: 0 12px; gap: 8px;
+    grid-template-columns: 1fr auto;
+    border-radius: 16px 16px 0 0;
+  }
+  .player .right { display: none; }              /* 隐藏音量 */
+  .player .center { gap: 0; padding: 0; }
+  .player .progress { display: none; }           /* 迷你条不显示进度条 */
+  .player .controls { gap: 4px; }
+  .player .controls .ctl:first-child { display: none; } /* 隐藏“列表循环”文字按钮 */
+  .player .left { gap: 10px; }
+  .player .info .title { font-size: 13px; }
+  .player .info .artist { font-size: 11.5px; }
+  .player .hfav { display: none; }
+  .player .eq-bars { width: 16px; height: 22px; }
+  .player .play-btn { width: 42px; height: 42px; }
+  .player .play-btn svg { width: 20px; height: 20px; }
+  .player .expand { font-size: 15px; }
+  /* 底部细进度线：纯展示，跟随播放进度（--pct 由组件传入） */
+  .player::after {
+    content: '';
+    position: absolute; left: 0; bottom: 0;
+    width: var(--pct, 0%); height: 2px;
+    background: var(--grad-primary);
+    border-radius: 0 2px 2px 0;
+    z-index: 1;
+  }
+}
 </style>

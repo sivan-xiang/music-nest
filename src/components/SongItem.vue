@@ -86,4 +86,19 @@ const fav = computed(() => isFav(props.track.id))
 }
 .song:hover .play { opacity: 1; transform: scale(1); }
 .play svg { width: 18px; height: 18px; fill: #fff; }
+
+/* ============ 移动端：取消时长列，操作按钮常显（触屏无 hover） ============ */
+@media (max-width: 820px) {
+  .song { grid-template-columns: 30px 44px 1fr 38px 38px; gap: 10px; padding: 8px 10px; }
+  .dur { display: none; }
+  .fav { opacity: 1; width: 28px; height: 28px; }
+  .play { opacity: 1; transform: scale(1); width: 32px; height: 32px; }
+  .idx { font-size: 12px; }
+  .name { font-size: 14px; }
+  .artist { font-size: 12px; }
+}
+@media (hover: none) {
+  .song:hover::after { animation: none; }
+  .song:hover .cover { transform: none; }
+}
 </style>

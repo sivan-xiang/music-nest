@@ -124,4 +124,16 @@ watch(() => [props.playlist, props.id], () => {
 .play-all svg { width: 16px; height: 16px; fill: #fff; }
 .state { padding: 40px; text-align: center; color: var(--text-dim); }
 .list { border-radius: var(--radius-lg); padding: 6px; }
+
+/* ============ 移动端：封面与信息改为竖向堆叠居中 ============ */
+@media (max-width: 820px) {
+  .pl { padding: 16px 14px 20px; }
+  .head { flex-direction: column; align-items: center; text-align: center; gap: 16px; margin-bottom: 20px; }
+  .cover { width: 150px; height: 150px; }
+  .meta { align-items: center; }
+  .meta h1 { font-size: 22px; }
+  .desc { max-width: none; }
+  .sub { justify-content: center; }
+  .kind { letter-spacing: 1px; }
+}
 </style>

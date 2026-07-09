@@ -131,8 +131,19 @@ function onSeek(e) {
 .right { height: 100%; display: flex; }
 .right :deep(.lyrics) { flex: 1; }
 
-@media (max-width: 860px) {
-  .stage { grid-template-columns: 1fr; padding: 40px 24px; gap: 20px; overflow-y: auto; }
-  .right { height: 320px; }
+@media (max-width: 820px) {
+  .close { top: calc(env(safe-area-inset-top) + 16px); right: 16px; }
+  .stage {
+    grid-template-columns: 1fr;
+    padding: calc(env(safe-area-inset-top) + 36px) 20px calc(env(safe-area-inset-bottom) + 28px);
+    gap: 18px; overflow-y: auto;
+  }
+  .left { width: 100%; max-width: 300px; margin: 0 auto; }
+  .turntable { width: 100%; }
+  .left .title { font-size: 22px; margin-top: 20px; }
+  .left .artist { font-size: 14px; }
+  .actions { gap: 12px; margin: 16px 0 12px; }
+  .controls { gap: 14px; }
+  .right { height: 300px; }
 }
 </style>

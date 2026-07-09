@@ -45,4 +45,11 @@ function playOne(t) {
 .emo { font-size: 46px; }
 .empty p { font-size: 16px; font-weight: 600; }
 .list { border-radius: var(--radius-lg); padding: 6px; }
+
+/* ============ 移动端：留白收紧 ============ */
+@media (max-width: 820px) {
+  .fav { padding: 16px 14px 20px; }
+  .sec-head { margin-bottom: 14px; }
+  .sec-head h3 { font-size: 18px; }
+}
 </style>

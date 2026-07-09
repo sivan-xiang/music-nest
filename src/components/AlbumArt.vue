@@ -7,7 +7,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="vinyl" :style="{ width: size + 'px', height: size + 'px' }">
+  <div class="vinyl" :style="{ '--d': size + 'px' }">
     <div class="disc" :class="{ spin: playing }">
       <div class="grooves"></div>
       <div class="cover" :style="{ backgroundImage: src ? `url(${src})` : 'var(--grad-primary)' }">
@@ -19,7 +19,7 @@ defineProps({
 </template>
 
 <style scoped>
-.vinyl { position: relative; }
+.vinyl { position: relative; width: var(--d); height: auto; aspect-ratio: 1; max-width: 100%; }
 .disc {
   position: relative; width: 100%; height: 100%;
   border-radius: 50%;

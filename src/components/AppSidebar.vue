@@ -141,4 +141,16 @@ const items = [
 }
 .theme-toggle:hover { background: var(--surface-hover); color: var(--text); box-shadow: var(--shadow-soft); }
 .tt-ico { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ============ 移动端：隐藏左侧栏，导航交由底部 Tab 栏 ============ */
+@media (max-width: 820px) {
+  .sidebar { display: none; }
+}
+
+/* 触屏无 hover：收起基于 hover 的高亮，避免“粘住” */
+@media (hover: none) {
+  .nav-item:hover { background: none; box-shadow: none; transform: none; color: var(--text-soft); }
+  .nav-item.active:hover { background: var(--grad-soft); color: var(--text); box-shadow: inset 0 0 0 1px rgba(120,160,200,.16); }
+  .now-mini:hover, .theme-toggle:hover { background: var(--surface-strong); box-shadow: none; transform: none; color: var(--text-soft); }
+}
 </style>

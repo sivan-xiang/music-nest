@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import AppSidebar from './components/AppSidebar.vue'
+import AppTabBar from './components/AppTabBar.vue'
 import ParticlesBg from './components/ParticlesBg.vue'
 import AppPlayer from './components/AppPlayer.vue'
 import DiscoverView from './views/DiscoverView.vue'
@@ -45,6 +46,8 @@ const showNow = computed(() => state.showNow)
       <FavoritesView v-else-if="currentView === 'favorites'" @navigate="navigate" />
     </main>
 
+    <AppTabBar :current="currentView" @navigate="navigate" />
+
     <AppPlayer @open-now="openNow" />
 
     <transition name="nowfade">
@@ -54,11 +57,20 @@ const showNow = computed(() => state.showNow)
 </template>
 
 <style scoped>
-.app { position: relative; z-index: 1; display: flex; gap: var(--app-gap); padding: var(--app-gap); height: 100vh; overflow: hidden; }
+.app { position: relative; z-index: 1; display: flex; gap: var(--app-gap); padding: var(--app-gap); height: 100vh; height: 100dvh; overflow: hidden; }
 .main {
   flex: 1; height: 100%; overflow: hidden;
   padding-bottom: calc(var(--player-h) + 28px);
 }
 .nowfade-enter-active, .nowfade-leave-active { transition: opacity .35s ease; }
 .nowfade-enter-from, .nowfade-leave-to { opacity: 0; }
+
+/* ========== 移动端：整体改为纵向布局，内容占满全宽 ========== */
+@media (max-width: 820px) {
+  .app { flex-direction: column; padding: 0; gap: 0; }
+  .main {
+    /* 底部给迷你播放条 + Tab 栏 + 安全区留白 */
+    padding-bottom: calc(var(--player-h) + var(--tabbar-h) + env(safe-area-inset-bottom) + 10px);
+  }
+}
 </style>

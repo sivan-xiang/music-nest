@@ -238,3 +238,29 @@ h1, h2, h3, .display {
 
 /* 让一切过渡更顺滑（不影响已显式声明的 transition） */
 button, .nav-item, .card, .song, .act, .theme-toggle { will-change: transform; }
+
+/* ===========================================================
+   移动端适配  ──  断点 820px（平板竖屏 / 手机）
+   设计：左侧 Sidebar 在移动端隐藏，改用底部 Tab 栏；
+   底部常驻迷你播放条位于 Tab 栏之上；内容占满全宽。
+   =========================================================== */
+@media (max-width: 820px) {
+  :root {
+    --sidebar-w: 0px;
+    --tabbar-h: 60px;          /* 底部导航栏高度（不含安全区） */
+    --player-h: 66px;          /* 移动端迷你播放条高度 */
+    --app-gap: 0px;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+  }
+
+  /* 触屏体验优化：去除点击高亮、长按菜单 */
+  * { -webkit-tap-highlight-color: transparent; }
+  button, .nav-item, .card, .song, .act, .tab { -webkit-touch-callout: none; }
+}
+
+/* 触屏设备无 hover：统一收敛 hover 视觉，避免“粘住”的高亮
+   （各组件内部的 hover 细节在各自 scoped 媒体查询中处理） */
+@media (hover: none) {
+  .song::after, .card .play-ic, .song .fav, .song .play { transition: none; }
+}

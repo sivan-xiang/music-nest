@@ -225,4 +225,17 @@ onUnmounted(stopRotate)
 .c-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
 
 .list { border-radius: var(--radius-lg); padding: 6px; }
+
+/* ============ 移动端：留白收紧、Banner 降低、卡片两列 ============ */
+@media (max-width: 820px) {
+  .discover { padding: 16px 14px 20px; }
+  .demo-tip { margin-bottom: 16px; }
+  .banner { height: 160px; margin-bottom: 22px; }
+  .slide-text { left: 20px; bottom: 18px; }
+  .slide-text h2 { font-size: 21px; }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .sec-head { margin-bottom: 12px; }
+  .sec-head h3 { font-size: 18px; }
+  .cover { border-radius: var(--radius-md); }
+}
 </style>

@@ -164,4 +164,13 @@ onMounted(async () => {
 .cnt { position: absolute; right: 10px; top: 10px; font-size: 11px; color:#fff; background: rgba(0,0,0,.4); padding: 2px 8px; border-radius: 99px; }
 .c-name { font-size: 14px; font-weight: 600; margin-top: 10px; }
 .c-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+/* ============ 移动端：留白收紧、卡片两列 ============ */
+@media (max-width: 820px) {
+  .search { padding: 16px 14px 20px; }
+  .bar { max-width: none; }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .tabs { gap: 16px; margin: 18px 0 14px; }
+  .sec-head h3 { font-size: 18px; }
+}
 </style>
