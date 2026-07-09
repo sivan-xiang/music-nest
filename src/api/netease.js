@@ -11,9 +11,7 @@
    这里在 API 层统一把歌单对象补齐 coverImgUrl 和 picUrl 两个字段。
    ============================================================ */
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE ||
-  (import.meta.env.DEV ? '/api' : 'http://localhost:3000')
+const API_BASE = import.meta.env.VITE_API_BASE || '/api'
 
 async function request(path, params = {}) {
   const url = new URL(API_BASE + path, window.location.origin)

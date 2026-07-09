@@ -9,17 +9,19 @@
     "dev:web": "vite",
     "dev": "concurrently -n API,WEB -c magenta,cyan \"npm:api\" \"npm:dev:web\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server/index.cjs"
   },
   "dependencies": {
-    "vue": "^3.4.21"
+    "vue": "^3.4.21",
+    "NeteaseCloudMusicApi": "^4.32.0",
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "http-proxy-middleware": "^2.0.6"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "concurrently": "^8.2.2",
     "vite": "^5.2.8"
-  },
-  "optionalDependencies": {
-    "NeteaseCloudMusicApi": "^4.32.0"
   }
 }
