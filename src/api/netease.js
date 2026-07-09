@@ -123,7 +123,9 @@ export const api = {
   async songUrl(id, level = 'standard') {
     try {
       const d = await request('/song/url/v1', { id, level })
-      return d?.data?.[0]?.url || null
+      const u = d?.data?.[0]?.url || null
+      // 线上为 https 页面，网易云返回的多为 http 直链，必须转 https 否则被混合内容策略拦截
+      return u ? httpsUrl(u) : null
     } catch {
       return null
     }

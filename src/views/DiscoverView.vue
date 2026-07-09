@@ -23,6 +23,25 @@ function playNew(t) {
   playTrack(t, newSongs.value)
 }
 
+// Banner 按跳转类型分别处理（网易云 banner 不一定是歌单）
+function onBannerClick(b) {
+  if (b.targetType === 1000) {
+    goPlaylist({ id: b.targetId, name: b.title, coverImgUrl: b.pic })
+  } else if (b.targetType === 1) {
+    // 单曲：拉详情后直接播放
+    playTrack({ id: b.targetId, name: b.title, album: { picUrl: b.pic } })
+  } else {
+    // 专辑 / MV 等暂无独立页，跳搜索兜底，至少点击有反馈
+    emit('navigate', { view: 'search', params: { q: b.title } })
+  }
+}
+function bannerTag(b) {
+  if (b.targetType === 1000) return '歌单'
+  if (b.targetType === 1) return '单曲'
+  if (b.targetType === 10) return '专辑'
+  return '推荐'
+}
+
 function startRotate() {
   if (banners.value.length < 2) return
   timer = setInterval(() => {
@@ -71,11 +90,11 @@ onUnmounted(stopRotate)
         class="slide"
         :class="{ on: i === bi }"
         :style="{ backgroundImage: `url(${b.pic})` }"
-        @click="b.targetType === 1000 && goPlaylist({ id: b.targetId, name: b.title, coverImgUrl: b.pic })"
+        @click="onBannerClick(b)"
       >
         <div class="slide-mask"></div>
         <div class="slide-text">
-          <span class="tag">{{ b.targetType === 1000 ? '歌单' : '推荐' }}</span>
+          <span class="tag">{{ bannerTag(b) }}</span>
           <h2>{{ b.title || b.name }}</h2>
         </div>
       </div>
