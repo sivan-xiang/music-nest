@@ -21,22 +21,37 @@ function playNew(t) {
   playTrack(t, discoverCache.newSongs)
 }
 
-// Banner 按跳转类型分别处理（网易云 banner 不一定是歌单）
+// Banner 按跳转类型分别处理（网易云 banner 类型很杂：3000=活动/外链、10=专辑、1=单曲、1000=歌单）
 function onBannerClick(b) {
-  if (b.targetType === 1000) {
-    goPlaylist({ id: b.targetId, name: b.title, coverImgUrl: b.pic })
-  } else if (b.targetType === 1) {
-    // 单曲：拉详情后直接播放
-    playTrack({ id: b.targetId, name: b.title, album: { picUrl: b.pic } })
-  } else {
-    // 专辑 / MV 等暂无独立页，跳搜索兜底，至少点击有反馈
-    emit('navigate', { view: 'search', params: { q: b.title } })
+  const t = b.targetType
+  // 1) 活动/专题：url 是真实网页链接 → 新标签打开（大多数 banner 属此类）
+  if (b.url && /^https?:\/\//i.test(b.url)) {
+    window.open(b.url, '_blank', 'noopener')
+    return
   }
+  // 2) 单曲 → 站内直接播放
+  if (t === 1) {
+    playTrack({ id: b.targetId, name: b.title, album: { picUrl: b.pic } })
+    return
+  }
+  // 3) 歌单 → 站内进详情
+  if (t === 1000) {
+    goPlaylist({ id: b.targetId, name: b.title, coverImgUrl: b.pic })
+    return
+  }
+  // 4) 专辑（10）→ 打开对应网易云专辑页（当前无独立专辑页，新标签直达）
+  if (t === 10) {
+    window.open(`https://music.163.com/#/album?id=${b.targetId}`, '_blank', 'noopener')
+    return
+  }
+  // 5) 兜底：实在没目标的，带标题去搜索（极少触发）
+  emit('navigate', { view: 'search', params: { q: b.title || '' } })
 }
 function bannerTag(b) {
   if (b.targetType === 1000) return '歌单'
   if (b.targetType === 1) return '单曲'
   if (b.targetType === 10) return '专辑'
+  if (/^https?:\/\//i.test(b.url || '')) return '活动'
   return '推荐'
 }
 
