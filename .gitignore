@@ -1,0 +1,24 @@
+# 依赖与构建产物
+node_modules/
+dist/
+dist-ssr/
+
+# 日志
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 本地环境 / 运行时
+.env
+.env.local
+.DS_Store
+Thumbs.db
+
+# 项目记忆与本地数据（不进版本库）
+.workbuddy/
+
+# 编辑器
+.idea/
+.vscode/
+*.swp

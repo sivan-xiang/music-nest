@@ -1,0 +1,25 @@
+{
+  "name": "music-nest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "清新脱俗的个人音乐小窝 · A fresh personal music nest",
+  "type": "module",
+  "scripts": {
+    "api": "NeteaseCloudMusicApi",
+    "dev:web": "vite",
+    "dev": "concurrently -n API,WEB -c magenta,cyan \"npm:api\" \"npm:dev:web\"",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "concurrently": "^8.2.2",
+    "vite": "^5.2.8"
+  },
+  "optionalDependencies": {
+    "NeteaseCloudMusicApi": "^4.32.0"
+  }
+}
