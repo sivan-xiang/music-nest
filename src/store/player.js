@@ -26,8 +26,17 @@ const state = reactive({
   lyrics: [],
   lyricIndex: -1,
   showNow: false,
-  favorites: []
+  favorites: [],
+  toast: ''
 })
+
+// 轻提示：无可用音源等情况，3 秒后自动消失
+let toastTimer = null
+function notify(msg) {
+  state.toast = msg
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => (state.toast = ''), 3200)
+}
 
 const urlCache = new Map()
 const lrcCache = new Map()
@@ -96,6 +105,7 @@ async function loadAndPlay(track) {
     if (track.demoUrl) audio.src = track.demoUrl
     else {
       state.current = null
+      notify('该歌曲暂无可用音源（可能需要登录态或版权限制）')
       return
     }
   } else {

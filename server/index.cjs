@@ -13,6 +13,9 @@ const path = require('path')
 
 const NCM_PORT = Number(process.env.NCM_PORT) || 4000
 const PORT = Number(process.env.PORT) || 3000
+// 登录态 cookie（NetEase MUSIC_U 等），通过 Railway 环境变量注入；
+// 仅用于后端代理网易云 API，绝不出现在前端代码中，不对外暴露。
+const NCM_COOKIE = process.env.NCM_COOKIE || ''
 
 const app = express()
 app.use(cors())
@@ -55,10 +58,17 @@ async function initNcm() {
     createProxyMiddleware({
       target: `http://127.0.0.1:${NCM_PORT}`,
       changeOrigin: true,
-      pathRewrite: { '^/api': '' }
+      pathRewrite: { '^/api': '' },
+      // 把登录态 cookie 注入到转发给 NCM 的请求头，
+      // 否则 /song/url/v1 等接口对大多数歌曲返回 url:null
+      onProxyReq(proxyReq, req) {
+        if (NCM_COOKIE) {
+          proxyReq.setHeader('Cookie', NCM_COOKIE)
+        }
+      }
     })
   )
-  console.log('[MusicNest] /api 代理已挂载')
+  console.log('[MusicNest] /api 代理已挂载' + (NCM_COOKIE ? ' (已注入 NCM_COOKIE)' : ' (未配置 NCM_COOKIE)'))
 }
 
 initNcm().catch((e) => {

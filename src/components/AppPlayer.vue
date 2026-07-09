@@ -78,6 +78,10 @@ function onSeek(e) {
         @input="setVolume(parseFloat($event.target.value))"
       />
     </div>
+
+    <transition name="toast">
+      <div class="toast" v-if="state.toast">{{ state.toast }}</div>
+    </transition>
   </footer>
 </template>
 
@@ -127,4 +131,13 @@ function onSeek(e) {
 
 .right { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 .vol-range { width: 92px; accent-color: #5bc0be; }
+
+.toast {
+  position: absolute; left: 50%; top: -18px; transform: translate(-50%, -100%);
+  background: rgba(40,46,60,.92); color: #fff; padding: 9px 16px; border-radius: 12px;
+  font-size: 12.5px; white-space: nowrap; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  backdrop-filter: blur(6px);
+}
+.toast-enter-active, .toast-leave-active { transition: .28s cubic-bezier(.2,.7,.3,1); }
+.toast-enter-from, .toast-leave-to { opacity: 0; transform: translate(-50%, -80%); }
 </style>
