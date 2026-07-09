@@ -35,6 +35,14 @@ const server = app.listen(PORT, () => {
 
 // ─── 后台异步启动网易云 API，就绪后挂载 /api 代理 ──
 async function initNcm() {
+  // NeteaseCloudMusicApi 在加载时会同步读取 /tmp/anonymous_token，
+  // 全新容器里该文件不存在会直接崩溃；先确保它存在（空文件即可走匿名模式）
+  try {
+    fs.accessSync('/tmp/anonymous_token')
+  } catch {
+    fs.writeFileSync('/tmp/anonymous_token', '')
+  }
+
   const { createProxyMiddleware } = require('http-proxy-middleware')
   const { serveNcmApi } = require('NeteaseCloudMusicApi/server')
 
