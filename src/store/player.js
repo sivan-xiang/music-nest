@@ -7,6 +7,7 @@
    ============================================================ */
 import { reactive } from 'vue'
 import api from '../api/netease.js'
+import jsmediatags from 'jsmediatags/dist/jsmediatags.min.js'
 import { parseLrc, activeLyricIndex } from '../utils/lrc.js'
 
 const audio = new Audio()
@@ -27,6 +28,7 @@ const state = reactive({
   lyricIndex: -1,
   showNow: false,
   favorites: [],
+  localTracks: [],
   toast: ''
 })
 
@@ -204,6 +206,76 @@ function cycleMode() {
   state.mode = order[(order.indexOf(state.mode) + 1) % order.length]
 }
 
+/* ---------- 本地文件播放 ---------- */
+// 从文件名推断 歌手 - 歌名
+function parseName(filename) {
+  const base = filename.replace(/\.[^.]+$/, '')
+  const parts = base.split(' - ')
+  if (parts.length >= 2) {
+    return { artist: parts[0].trim(), name: parts.slice(1).join(' - ').trim() }
+  }
+  return { artist: '未知歌手', name: base }
+}
+
+// 读取 MP3/FLAC 等内嵌 ID3 标签（标题/歌手/封面），读不到返回 null
+function readTags(file) {
+  return new Promise((resolve) => {
+    jsmediatags.read(file, {
+      onSuccess: (tag) => resolve(tag.tags || null),
+      onError: () => resolve(null)
+    })
+  })
+}
+
+// ID3 内嵌封面 → base64 dataURL
+function pictureToUrl(pic) {
+  if (!pic || !pic.data) return ''
+  const bytes = pic.data
+  let binary = ''
+  const chunk = 8000
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk))
+  }
+  return `data:${pic.format};base64,${btoa(binary)}`
+}
+
+// 把用户选择的 File 列表转换为 track 并加入本地曲库
+async function addLocalFiles(files) {
+  const list = Array.from(files || []).filter(
+    (f) => f.type.startsWith('audio') || /\.(mp3|flac|wav|ogg|m4a|aac|opus)$/i.test(f.name)
+  )
+  const added = []
+  for (const file of list) {
+    const blobUrl = URL.createObjectURL(file)
+    const parsed = parseName(file.name)
+    let name = parsed.name
+    let artist = parsed.artist
+    let coverImgUrl = ''
+    try {
+      const tags = await readTags(file)
+      if (tags) {
+        if (tags.TITLE) name = tags.TITLE
+        if (tags.ARTIST) artist = tags.ARTIST
+        const url = pictureToUrl(tags.picture)
+        if (url) coverImgUrl = url
+      }
+    } catch {
+      /* 标签读取失败则用文件名 */
+    }
+    added.push({
+      id: 'local-' + file.name + '-' + file.size,
+      name,
+      artist,
+      coverImgUrl,
+      url: blobUrl, // 本地文件直接用 blob URL，ensureUrl 会直通
+      duration: 0,
+      local: true
+    })
+  }
+  state.localTracks.push(...added)
+  return added
+}
+
 function openNow() {
   state.showNow = true
 }
@@ -242,6 +314,7 @@ export function usePlayer() {
     cycleMode,
     openNow,
     closeNow,
+    addLocalFiles,
     isFav,
     toggleFav,
     getFavs

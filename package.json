@@ -13,11 +13,12 @@
     "start": "node server/index.cjs"
   },
   "dependencies": {
-    "vue": "^3.4.21",
-    "NeteaseCloudMusicApi": "^4.32.0",
-    "express": "^4.19.2",
     "cors": "^2.8.5",
-    "http-proxy-middleware": "^2.0.6"
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^2.0.6",
+    "jsmediatags": "^3.9.7",
+    "NeteaseCloudMusicApi": "^4.32.0",
+    "vue": "^3.4.21"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

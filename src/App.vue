@@ -8,6 +8,7 @@ import DiscoverView from './views/DiscoverView.vue'
 import SearchView from './views/SearchView.vue'
 import PlaylistView from './views/PlaylistView.vue'
 import FavoritesView from './views/FavoritesView.vue'
+import LocalView from './views/LocalView.vue'
 import NowPlayingView from './views/NowPlayingView.vue'
 import { usePlayer } from './store/player.js'
 
@@ -44,6 +45,7 @@ const showNow = computed(() => state.showNow)
         @navigate="navigate"
       />
       <FavoritesView v-else-if="currentView === 'favorites'" @navigate="navigate" />
+      <LocalView v-else-if="currentView === 'local'" @navigate="navigate" />
     </main>
 
     <AppTabBar :current="currentView" @navigate="navigate" />
