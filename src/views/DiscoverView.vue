@@ -136,7 +136,8 @@ onUnmounted(stopRotate)
       </div>
       <div class="grid">
         <button v-for="(p, i) in discoverCache.playlists" :key="p.id" class="card stagger" :style="{ '--i': i }" @click="goPlaylist(p)">
-          <div class="cover" :style="{ backgroundImage: `url(${p.coverImgUrl})` }">
+          <div class="cover">
+            <img :src="p.coverImgUrl" :alt="p.name" loading="lazy" />
             <span class="play-ic">▶</span>
           </div>
           <div class="c-name ellipsis">{{ p.name }}</div>
@@ -149,7 +150,7 @@ onUnmounted(stopRotate)
     <section class="section">
       <div class="sec-head">
         <h3>新歌速递</h3>
-        <span class="muted">新鲜上架 · 双击播放</span>
+        <span class="muted">新鲜上架 · 点击播放</span>
       </div>
       <div class="list glass">
         <SongItem
@@ -205,16 +206,18 @@ onUnmounted(stopRotate)
 
 .grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px;
+  overflow: hidden;
 }
-.card { text-align: left; transition: .2s; }
+.card { text-align: left; transition: .2s; min-width: 0; }
 .card:hover { transform: translateY(-6px); box-shadow: var(--shadow-soft); }
 .card .cover { transition: transform .35s cubic-bezier(.2, .7, .3, 1); }
 .card:hover .cover { transform: scale(1.05); }
 .cover {
   position: relative; width: 100%; aspect-ratio: 1; border-radius: var(--radius-md);
-  background-size: cover; background-position: center; box-shadow: var(--shadow-card);
-  overflow: hidden;
+  background: linear-gradient(135deg, rgba(160,190,220,.45), rgba(200,170,225,.45));
+  box-shadow: var(--shadow-card); overflow: hidden;
 }
+.cover img { width: 100%; height: 100%; max-width: 100%; object-fit: cover; display: block; }
 .play-ic {
   position: absolute; right: 12px; bottom: 12px; width: 40px; height: 40px; border-radius: 50%;
   background: var(--grad-primary); color: #fff; display: grid; place-items: center;
@@ -233,9 +236,9 @@ onUnmounted(stopRotate)
   .banner { height: 160px; margin-bottom: 22px; }
   .slide-text { left: 20px; bottom: 18px; }
   .slide-text h2 { font-size: 21px; }
-  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .sec-head { margin-bottom: 12px; }
   .sec-head h3 { font-size: 18px; }
-  .cover { border-radius: var(--radius-md); }
+  .cover { border-radius: var(--radius-md); aspect-ratio: 1; }
 }
 </style>

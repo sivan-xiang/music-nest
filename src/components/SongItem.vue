@@ -9,15 +9,25 @@ const props = defineProps({
   playlist: { type: Array, default: () => [] }
 })
 const emit = defineEmits(['play'])
-const { state, isFav, toggleFav } = usePlayer()
+const { state, isFav, toggleFav, togglePlay, playTrack, openNow } = usePlayer()
 
 const isCurrent = computed(() => state.current && state.current.id === props.track.id)
 const playingHere = computed(() => isCurrent.value && state.isPlaying)
 const fav = computed(() => isFav(props.track.id))
+function onPlay() {
+  // 点歌曲（图片/名称/整行）→ 非当前歌则播放它，随后进入全屏播放页
+  if (!isCurrent.value) playTrack(props.track, props.playlist)
+  openNow()
+}
+function onPlayButton() {
+  // 仅播放/暂停，不进入播放页（让列表里能直接暂停/继续当前歌）
+  if (isCurrent.value) togglePlay()
+  else playTrack(props.track, props.playlist)
+}
 </script>
 
 <template>
-  <div class="song" :class="{ active: isCurrent }" @dblclick="emit('play', track)">
+  <div class="song" :class="{ active: isCurrent }" @click="onPlay">
     <div class="idx">
       <span v-if="!playingHere" class="num">{{ String(index + 1).padStart(2, '0') }}</span>
       <span v-else class="eq"><i></i><i></i><i></i></span>
@@ -36,7 +46,7 @@ const fav = computed(() => isFav(props.track.id))
 
     <div class="dur">{{ formatTime(track.duration) }}</div>
 
-    <button class="play" @click.stop="emit('play', track)" :title="playingHere ? '正在播放' : '播放'">
+    <button class="play" @click.stop="onPlayButton" :title="playingHere ? '正在播放（点此暂停）' : '播放'">
       <svg v-if="!playingHere" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       <svg v-else viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
     </button>
@@ -48,7 +58,7 @@ const fav = computed(() => isFav(props.track.id))
   position: relative; overflow: hidden;
   display: grid; grid-template-columns: 34px 46px 1fr 40px 52px 40px;
   align-items: center; gap: 14px; padding: 9px 14px;
-  border-radius: var(--radius-sm); cursor: default; transition: .18s;
+  border-radius: var(--radius-sm); cursor: pointer; transition: .18s;
   animation: rise .5s cubic-bezier(.2, .7, .3, 1) both;
   animation-delay: calc(var(--i, 0) * 45ms);
 }

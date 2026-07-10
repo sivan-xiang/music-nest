@@ -82,10 +82,10 @@ function onSeek(e) {
 .close { position: absolute; top: 22px; right: 26px; width: 42px; height: 42px; border-radius: 50%; background: var(--surface-strong); color: var(--text-soft); font-size: 18px; z-index: 2; transition: .2s; }
 .close:hover { background: var(--surface-hover); transform: rotate(90deg); }
 
-.stage { position: relative; z-index: 1; flex: 1; display: grid; grid-template-columns: 420px 1fr; gap: 40px; padding: 60px 70px; align-items: center; }
+.stage { position: relative; z-index: 1; flex: 1; display: grid; grid-template-columns: 1fr; gap: 22px; padding: 64px 24px; align-items: center; overflow-y: auto; }
 
-.left { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.turntable { position: relative; }
+.left { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; max-width: 380px; margin: 0 auto; }
+.turntable { position: relative; width: 100%; max-width: 320px; margin: 0 auto; }
 .tonearm {
   position: absolute; top: 2px; right: 16px;
   width: 72px; height: 72px; transform-origin: top right;
@@ -128,22 +128,21 @@ function onSeek(e) {
 .play-btn:hover { transform: scale(1.06); color: #fff; }
 .play-btn svg { width: 28px; height: 28px; fill: #fff; }
 
-.right { height: 100%; display: flex; }
+.right { height: 320px; display: flex; }
 .right :deep(.lyrics) { flex: 1; }
 
-@media (max-width: 820px) {
-  .close { top: calc(env(safe-area-inset-top) + 16px); right: 16px; }
-  .stage {
-    grid-template-columns: 1fr;
-    padding: calc(env(safe-area-inset-top) + 36px) 20px calc(env(safe-area-inset-bottom) + 28px);
-    gap: 18px; overflow-y: auto;
+  @media (max-width: 820px) {
+    .close { top: calc(env(safe-area-inset-top) + 16px); right: 16px; }
+    .stage {
+      padding: calc(env(safe-area-inset-top) + 40px) 18px calc(env(safe-area-inset-bottom) + 24px);
+      gap: 18px;
+    }
+    .left { max-width: 300px; }
+    .turntable { max-width: 280px; }
+    .left .title { font-size: 22px; margin-top: 20px; }
+    .left .artist { font-size: 14px; }
+    .actions { gap: 12px; margin: 16px 0 12px; }
+    .controls { gap: 14px; }
+    .right { height: 280px; }
   }
-  .left { width: 100%; max-width: 300px; margin: 0 auto; }
-  .turntable { width: 100%; }
-  .left .title { font-size: 22px; margin-top: 20px; }
-  .left .artist { font-size: 14px; }
-  .actions { gap: 12px; margin: 16px 0 12px; }
-  .controls { gap: 14px; }
-  .right { height: 300px; }
-}
 </style>

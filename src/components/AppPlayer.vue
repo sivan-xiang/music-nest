@@ -25,12 +25,12 @@ function onSeek(e) {
 
 <template>
   <footer class="player glass" :style="{ '--pct': pct + '%' }">
-    <div class="left">
+    <div class="left" @click="state.current && emit('open-now')">
       <AlbumArt :src="state.current?.album?.picUrl" :playing="state.isPlaying" :size="56" />
       <div class="eq-bars" :class="{ playing: state.isPlaying }" v-if="state.current">
         <i v-for="n in 5" :key="n"></i>
       </div>
-      <div class="info" v-if="state.current" @click="emit('open-now')">
+      <div class="info" v-if="state.current">
         <div class="title ellipsis">{{ state.current.name }}</div>
         <div class="artist ellipsis">{{ state.current.artistName }}</div>
       </div>
@@ -163,7 +163,7 @@ function onSeek(e) {
   .player .eq-bars { width: 16px; height: 22px; }
   .player .play-btn { width: 42px; height: 42px; }
   .player .play-btn svg { width: 20px; height: 20px; }
-  .player .expand { font-size: 15px; }
+  .player .expand { display: none; }          /* 移动端去掉打开播放页图标，点歌名即可展开 */
   /* 底部细进度线：纯展示，跟随播放进度（--pct 由组件传入） */
   .player::after {
     content: '';

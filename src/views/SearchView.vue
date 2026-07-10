@@ -61,17 +61,21 @@ function pickHot(h) {
 }
 
 onMounted(async () => {
+  // 进入即显示加载态，避免首次进入（拉热搜 + 默认搜索）时出现空白无提示
+  loading.value = true
   // 由 banner 等外部带入的查询词：直接搜索并缓存
   if (props.q) {
     keyword.value = props.q
     await runSearch(props.q)
     searchCache.loaded = true
+    loading.value = false
     return
   }
-  // 已有缓存：恢复展示，不重新搜索（不闪空、不覆盖）
+  // 已有缓存：恢复展示，不重新搜索（不闪空、不覆盖），也不显示加载态
   if (searchCache.loaded) {
     keyword.value = searchCache.keyword
     hots.value = searchCache.hots
+    loading.value = false
     return
   }
   // 首次进入：拉热搜词 + 默认加载一点数据
@@ -85,6 +89,7 @@ onMounted(async () => {
   keyword.value = def
   await runSearch(def)
   searchCache.loaded = true
+  loading.value = false
 })
 </script>
 
@@ -112,7 +117,7 @@ onMounted(async () => {
 
     <div v-if="searchCache.demo" class="demo-tip">🌿 演示模式：未连接本地接口，仅展示示例匹配结果。</div>
 
-    <div v-if="loading" class="state">搜索中…</div>
+    <div v-if="loading" class="state"><span class="spinner"></span>搜索中…</div>
     <div v-else-if="searchCache.searched && !searchCache.songs.length && !searchCache.playlists.length" class="state muted">
       没有找到「{{ keyword }}」相关结果 🍃
     </div>
@@ -153,7 +158,9 @@ onMounted(async () => {
 .hot-chip { font-size: 13px; color: var(--text); background: var(--surface); border: 1px solid var(--surface-line); padding: 6px 14px; border-radius: 99px; transition: .18s; }
 .hot-chip:hover { background: var(--grad-soft); border-color: var(--c-teal); transform: translateY(-2px); }
 .demo-tip { background: rgba(255,214,192,.35); border:1px solid rgba(255,180,140,.5); color:#8a5a3c; padding:9px 16px; border-radius: var(--radius-md); font-size:13px; margin-bottom: 16px; }
-.state { padding: 40px; text-align: center; }
+.state { padding: 40px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.spinner { width: 18px; height: 18px; border: 2px solid var(--surface-line); border-top-color: var(--c-teal); border-radius: 50%; animation: spin .7s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .list { border-radius: var(--radius-lg); padding: 6px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; }
 .card { text-align: left; transition: .2s; }
